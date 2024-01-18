@@ -1,0 +1,12 @@
+Source: ros-humble-pangolin
+Section: misc
+Priority: optional
+Maintainer: Steven Lovegrove <stevenlovegrove@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), cmake, libeigen3-dev, libglew-dev, libpng-dev, libturbojpeg0-dev, libwayland-dev, libxkbcommon-dev, python3-dev, wayland-protocols, ros-humble-ros-workspace
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-humble-pangolin
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libglew-dev, libpng-dev, libturbojpeg0-dev, libwayland-client0, libwayland-cursor0, libwayland-egl1, libxkbcommon-dev, python3-dev, ros-humble-ros-workspace
+Description: Pangolin is a set of lightweight and portable utility libraries for prototyping 3D, numeric or video based programs and algorithms.
