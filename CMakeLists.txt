@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 
 project("Pangolin")
 set(PANGOLIN_VERSION_MAJOR 0)
 set(PANGOLIN_VERSION_MINOR 9)
-set(PANGOLIN_VERSION_PATCH 1)
+set(PANGOLIN_VERSION_PATCH 3)
 set(PANGOLIN_VERSION ${PANGOLIN_VERSION_MAJOR}.${PANGOLIN_VERSION_MINOR}.${PANGOLIN_VERSION_PATCH})
 
 if(NOT CMAKE_CXX_STANDARD)
@@ -19,6 +19,9 @@ endif()
 # Make our own cmake imports accessible
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+SET(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
 include(SetPlatformVars)
 include(PangolinFactory)
 
@@ -33,8 +36,9 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
+option( BUILD_SHARED_LIBS "Build Shared Library" ON)
+
 if(_WIN_)
-    option( BUILD_SHARED_LIBS    "Build Shared Library" OFF)
     option( MSVC_USE_STATIC_CRT  "Use static C Runtime with MSVC, /MT instead of /MD" ON)
 
     # Make sure there are no erroneous C Runtime flags
@@ -54,14 +58,11 @@ if(_WIN_)
         endforeach()
     endif()
 elseif(_OSX_)
-    option( BUILD_SHARED_LIBS "Build Shared Library" ON)
     set(CMAKE_MACOSX_RPATH ON)
 elseif(EMSCRIPTEN)
     set(BUILD_SHARED_LIBS OFF)
     include(EmscriptenUtils)
     set(CMAKE_EXE_LINKER_FLAGS "-sASYNCIFY=1 -sDISABLE_EXCEPTION_CATCHING=0 -sGL_ASSERTIONS=1 -sFULL_ES3=1 --bind")
-else()
-    option( BUILD_SHARED_LIBS "Build Shared Library" ON)
 endif()
 
 # run with "ASAN_OPTIONS=fast_unwind_on_malloc=0" to print stack with more details
@@ -84,19 +85,24 @@ if(BUILD_ASAN)
     ")
 endif()
 
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+    add_compile_options(-Wall -Wextra -Werror)
+    # error: ISO C++ prohibits anonymous structs
+    # add_compile_options(-Wpedantic)
+    # ignore "parentheses" warning for custom "picojson" fork
+    add_compile_options(-Wno-parentheses)
+    add_compile_options(-Wno-null-pointer-arithmetic)
+    add_compile_options(-Wno-null-pointer-subtraction)
+endif()
+
 #######################################################
 ## Testing setup
 
-option( BUILD_TESTS "Build Tests" OFF)
-find_package(Catch2 2 QUIET)
-if(Catch2_FOUND)
+option(BUILD_TESTS "Build Tests" OFF)
+if(BUILD_TESTS)
+    find_package(Catch2 REQUIRED)
     include(CTest)
     include(Catch)
-else()
-    if(BUILD_TESTS)
-        message(WARNING "Building Tests requested, but Catch2 library not found.")
-        set( BUILD_TESTS OFF)
-    endif()
 endif()
 
 #######################################################
@@ -134,8 +140,9 @@ ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake @ONLY IMMEDIATE )
 #######################################################
 ## Install headers / targets
 
+include(GNUInstallDirs)
 # This relative path allows installed files to be relocatable.
-set( CMAKECONFIG_INSTALL_DIR lib/cmake/${PROJECT_NAME} )
+set( CMAKECONFIG_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME} )
 file( RELATIVE_PATH REL_INCLUDE_DIR
     "${CMAKE_INSTALL_PREFIX}/${CMAKECONFIG_INSTALL_DIR}"
     "${CMAKE_INSTALL_PREFIX}/include"
@@ -144,10 +151,10 @@ file( RELATIVE_PATH REL_INCLUDE_DIR
 install(
     TARGETS ${component_list}
     EXPORT ${PROJECT_NAME}Targets
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin
-    INCLUDES DESTINATION include
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
 install(
