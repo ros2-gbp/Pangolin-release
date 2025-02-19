@@ -569,10 +569,17 @@ static void handle_toplevel_close(void *data, struct xdg_toplevel */*xdg_topleve
     static_cast<WaylandWindow*>(data)->CloseSignal();
 }
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
 static const struct xdg_toplevel_listener toplevel_listener = {
     .configure = handle_configure_toplevel,
     .close = handle_toplevel_close,
 };
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 static void xdg_wm_base_ping(void */*data*/, struct xdg_wm_base *xdg_wm_base, uint32_t serial) {
     xdg_wm_base_pong(xdg_wm_base, serial);
@@ -692,6 +699,10 @@ static void pointer_handle_axis_discrete(void */*data*/, struct wl_pointer */*wl
 
 #endif
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
 static const struct wl_pointer_listener pointer_listener = {
     pointer_handle_enter,
     pointer_handle_leave,
@@ -705,6 +716,9 @@ static const struct wl_pointer_listener pointer_listener = {
     pointer_handle_axis_discrete,
 #endif
 };
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 static void keyboard_handle_keymap(void *data, struct wl_keyboard */*keyboard*/, uint32_t format, int fd, uint32_t size) {
     if ((!data) || (format != WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1)) {
@@ -853,8 +867,6 @@ static const struct wl_registry_listener wregistry_listener = {
 };
 
 WaylandDisplay::WaylandDisplay() {
-    xkb_context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
-
     wdisplay = wl_display_connect(nullptr);
     if (wdisplay == nullptr) {
         throw std::runtime_error("Cannot connect to Wayland compositor!");
@@ -864,6 +876,8 @@ WaylandDisplay::WaylandDisplay() {
     wl_registry_add_listener(wregistry, &wregistry_listener, this);
 
     wl_display_roundtrip(wdisplay);
+
+    xkb_context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
 
     egl_display = eglGetDisplay((EGLNativeDisplayType)wdisplay);
     if(!egl_display) {
@@ -1061,7 +1075,7 @@ PANGOLIN_REGISTER_FACTORY(WaylandWindow)
           {"double_buffered","true","Whether the window should be double buffered"},
           {"sample_buffers","1",""},
           {"samples","1",""},
-          {PARAM_GL_PROFILE,"Ignored for now"},
+          {PARAM_GL_PROFILE,{},"Ignored for now"},
       }};
     }
 
