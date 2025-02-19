@@ -24,7 +24,11 @@ PRIVATE
 
 find_package(Eigen3 REQUIRED NO_MODULE)
 message(STATUS "Found Eigen: '${EIGEN3_INCLUDE_DIRS}'")
-target_compile_definitions(${COMPONENT} PUBLIC HAVE_EIGEN HAVE_GLEW)
+target_compile_definitions(${COMPONENT} PUBLIC HAVE_EIGEN)
+
+set_target_properties(
+    ${COMPONENT} PROPERTIES VERSION ${PANGOLIN_VERSION} SOVERSION ${PANGOLIN_VERSION_MAJOR}
+)
 
 target_link_libraries(${COMPONENT} PUBLIC pango_core pango_image Eigen3::Eigen)
 target_include_directories(${COMPONENT} PUBLIC
@@ -36,19 +40,26 @@ install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/include"
 )
 
 if(EMSCRIPTEN)
-    target_compile_definitions(${COMPONENT} PUBLIC HAVE_GLES HAVE_GLES_2)
+    target_compile_definitions(${COMPONENT} PUBLIC HAVE_GLES HAVE_GLES_2 HAVE_GLEW)
     target_sources( ${COMPONENT} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/compat/gl2engine.cpp)
 else()
     if(_LINUX_)
+        # EGL specific
         set(OpenGL_GL_PREFERENCE "GLVND")
+        find_package(OpenGL REQUIRED COMPONENTS OpenGL EGL)
+        find_package(epoxy REQUIRED)
+        target_link_libraries(${COMPONENT} PUBLIC OpenGL::OpenGL OpenGL::EGL)
+        target_link_libraries(${COMPONENT} PUBLIC ${epoxy_LIBRARIES})
+        target_include_directories(${COMPONENT} PUBLIC $<BUILD_INTERFACE:${epoxy_INCLUDE_DIRS}>)
+        target_compile_definitions(${COMPONENT} PUBLIC HAVE_EPOXY)
+    else()
+        # OpenGL defaults
+        find_package(OpenGL REQUIRED)
+        find_package(GLEW REQUIRED)
+        target_include_directories(${COMPONENT} PUBLIC $<BUILD_INTERFACE:${GLEW_INCLUDE_DIR}>)
+        target_link_libraries(${COMPONENT} PUBLIC ${GLEW_LIBRARY})
+        target_link_libraries(${COMPONENT} PUBLIC ${OPENGL_LIBRARIES})
+        target_include_directories(${COMPONENT} PUBLIC $<BUILD_INTERFACE:${OPENGL_INCLUDE_DIR}>)
+        target_compile_definitions(${COMPONENT} PUBLIC HAVE_GLEW)
     endif()
-    find_package(OpenGL REQUIRED QUIET)
-    find_package(GLEW REQUIRED QUIET)
-    target_include_directories( ${COMPONENT} PUBLIC
-        $<BUILD_INTERFACE:${OPENGL_INCLUDE_DIR}>
-        $<BUILD_INTERFACE:${GLEW_INCLUDE_DIR}>
-    )
-    target_link_libraries( ${COMPONENT} PUBLIC
-        ${GLEW_LIBRARY} ${OPENGL_LIBRARIES}
-    )
 endif()
