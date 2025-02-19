@@ -6,6 +6,10 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/src/varstate.cpp
 )
 
+set_target_properties(
+    ${COMPONENT} PROPERTIES VERSION ${PANGOLIN_VERSION} SOVERSION ${PANGOLIN_VERSION_MAJOR}
+)
+
 target_link_libraries(${COMPONENT} PUBLIC pango_core)
 target_include_directories(${COMPONENT} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
@@ -17,6 +21,6 @@ install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/include"
 
 if(BUILD_TESTS)
     add_executable(test_vars ${CMAKE_CURRENT_LIST_DIR}/tests/test_all.cpp)
-    target_link_libraries(test_vars PRIVATE Catch2::Catch2 ${COMPONENT})
+    target_link_libraries(test_vars PRIVATE Catch2::Catch2WithMain ${COMPONENT})
     catch_discover_tests(test_vars)
 endif()

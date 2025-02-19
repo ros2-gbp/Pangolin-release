@@ -115,13 +115,13 @@ EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent *e, void *user
         int key = spec_key(e->key);
         if(key != -1){
             w->KeyboardSignal(KeyboardEvent({
-                (float)w->x, (float)w->y, GetKeyModifierBitmask(e),
+                {(float)w->x, (float)w->y, GetKeyModifierBitmask(e)},
                 (uint8_t)key, eventType==EMSCRIPTEN_EVENT_KEYDOWN
             }));
         }
         if(strlen(e->key)==1){
             w->KeyboardSignal(KeyboardEvent({
-                (float)w->x, (float)w->y, GetKeyModifierBitmask(e),
+                {(float)w->x, (float)w->y, GetKeyModifierBitmask(e)},
                 (uint8_t)((e->ctrlKey?PANGO_CTRL:0) + e->key[0]),
                 eventType==EMSCRIPTEN_EVENT_KEYDOWN
             }));
@@ -141,7 +141,7 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userD
     case EMSCRIPTEN_EVENT_MOUSEDOWN:
     case EMSCRIPTEN_EVENT_MOUSEUP:
         w->MouseSignal(MouseEvent({
-            (float)w->x, (float)w->y, GetKeyModifierBitmask(e),
+            {(float)w->x, (float)w->y, GetKeyModifierBitmask(e)},
             e->button, eventType == EMSCRIPTEN_EVENT_MOUSEDOWN
         }));
         break;
@@ -162,16 +162,16 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void *userD
     return false;
 }
 
-EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent *e, void *userData){
+EM_BOOL wheel_callback(int /*eventType*/, const EmscriptenWheelEvent *e, void *userData){
     EmscriptenWindow* w=(EmscriptenWindow*)userData;
     w->SpecialInputSignal(SpecialInputEvent({
-        (float)w->x, (float)w->y, w->key_modifier_state,
+        {(float)w->x, (float)w->y, w->key_modifier_state},
         InputSpecialScroll,
-        (float)e->deltaX, (float)e->deltaY, 0, 0
+        {(float)e->deltaX, (float)e->deltaY, 0, 0}
     }));
     return true;
 }
-EM_BOOL uievent_callback(int eventType, const EmscriptenUiEvent *e, void *userData){
+EM_BOOL uievent_callback(int eventType, const EmscriptenUiEvent */*e*/, void *userData){
     EmscriptenWindow* w=(EmscriptenWindow*)userData;
     switch(eventType) {
     case EMSCRIPTEN_EVENT_RESIZE:
@@ -257,7 +257,7 @@ void EmscriptenWindow::ShowFullscreen(const TrueFalseToggle)
     // Not implemented
 }
 
-void EmscriptenWindow::Move(int x, int y)
+void EmscriptenWindow::Move(int /*x*/, int /*y*/)
 {
     // Not implemented
 }
@@ -299,11 +299,11 @@ PANGOLIN_REGISTER_FACTORY(EmscriptenWindow)
                 {"window_title","-","Ignored"},
                 {"w","640","Ignored"},
                 {"h","480","Ignored"},
-                {PARAM_GL_PROFILE,"Ignored for now"},
+                {PARAM_GL_PROFILE,{},"Ignored for now"},
             }};
         }
 
-        std::unique_ptr<WindowInterface> Open(const Uri& uri) override {
+        std::unique_ptr<WindowInterface> Open(const Uri& /*uri*/) override {
             // We're going to be naughty and actually ignore the title, width and height,
             // but list them as parameters to be compatible with other windowing libs.
             return std::unique_ptr<WindowInterface>(new EmscriptenWindow());
