@@ -3,10 +3,13 @@ get_filename_component(COMPONENT ${CMAKE_CURRENT_LIST_DIR} NAME)
 option(BUILD_PANGOLIN_PYTHON "Build support for Pangolin Interactive Console" ON)
 
 if(BUILD_PANGOLIN_PYTHON)
-  find_package(Python COMPONENTS Interpreter Development QUIET)
+  if(POLICY CMP0148)
+    cmake_policy(SET CMP0148 NEW)
+  endif()
+  find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 endif()
 
-if(BUILD_PANGOLIN_PYTHON AND Python_FOUND)
+if(BUILD_PANGOLIN_PYTHON AND Python3_FOUND)
     # If we've inited the submodule, use that
     if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/pybind11/CMakeLists.txt")
         add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/pybind11)
@@ -15,7 +18,7 @@ if(BUILD_PANGOLIN_PYTHON AND Python_FOUND)
     endif()
 endif()
 
-if(BUILD_PANGOLIN_PYTHON AND Python_FOUND AND pybind11_FOUND)
+if(BUILD_PANGOLIN_PYTHON AND Python3_FOUND AND pybind11_FOUND)
     set(SRC_BINDINGS
         ${CMAKE_CURRENT_LIST_DIR}/src/pypangolin/attach.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/pypangolin/colour.cpp
@@ -44,16 +47,21 @@ if(BUILD_PANGOLIN_PYTHON AND Python_FOUND AND pybind11_FOUND)
     )
 
     target_sources(
-        ${COMPONENT} PRIVATE 
+        ${COMPONENT} PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/src/pyinterpreter.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/src/pypangolin_embed.cpp 
-        ${SRC_BINDINGS} 
+        ${CMAKE_CURRENT_LIST_DIR}/src/pypangolin_embed.cpp
+        ${SRC_BINDINGS}
     )
 
     target_compile_definitions(${COMPONENT} PUBLIC HAVE_PYTHON)
     target_link_libraries(${COMPONENT} PUBLIC
         pango_core pango_display pango_plot pango_video pango_vars
     )
+
+    set_target_properties(
+        ${COMPONENT} PROPERTIES VERSION ${PANGOLIN_VERSION} SOVERSION ${PANGOLIN_VERSION_MAJOR}
+    )
+
     target_link_libraries(${COMPONENT} PRIVATE pybind11::embed )
     target_include_directories(${COMPONENT} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
@@ -62,6 +70,11 @@ if(BUILD_PANGOLIN_PYTHON AND Python_FOUND AND pybind11_FOUND)
     install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/include"
         DESTINATION ${CMAKE_INSTALL_PREFIX}
     )
+
+    if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+        # ignore "maybe-uninitialized" for Eigen
+        target_compile_options(${COMPONENT} PRIVATE "-Wno-uninitialized")
+    endif()
 
     PangolinRegisterFactory( InterpreterInterface PyInterpreter )
 
@@ -87,7 +100,7 @@ if(BUILD_PANGOLIN_PYTHON AND Python_FOUND AND pybind11_FOUND)
         AUTHOR "Steven Lovegrove"
         EMAIL "stevenlovegrove@gmail.com"
         LICENCE "MIT"
-        REQUIRES "pyopengl;pyopengl-accelerate;numpy;pillow;pybind11"
+        REQUIRES "pyopengl;numpy;pillow;pybind11"
         PRINT_HELP
     )
 else()
