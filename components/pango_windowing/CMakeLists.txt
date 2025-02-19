@@ -24,10 +24,12 @@ elseif(EMSCRIPTEN)
     PangolinRegisterFactory(WindowInterface EmscriptenWindow)
 else()
     find_package(X11 QUIET)
-    if(X11_FOUND)
+    find_package(OpenGL QUIET COMPONENTS EGL)
+    if(X11_FOUND AND OpenGL_EGL_FOUND)
         target_sources( ${COMPONENT} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/display_x11.cpp )
         target_link_libraries(${COMPONENT} PRIVATE ${X11_LIBRARIES} )
         target_include_directories(${COMPONENT} PRIVATE ${X11_INCLUDE_DIR} )
+        target_link_libraries(${COMPONENT} PRIVATE OpenGL::EGL)
         PangolinRegisterFactory(WindowInterface X11Window)
     endif()
 
@@ -86,6 +88,9 @@ if(OpenGL_EGL_FOUND)
     PangolinRegisterFactory(WindowInterface HeadlessWindow)
 endif()
 
+set_target_properties(
+    ${COMPONENT} PROPERTIES VERSION ${PANGOLIN_VERSION} SOVERSION ${PANGOLIN_VERSION_MAJOR}
+)
 
 target_sources(${COMPONENT} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/window.cpp)
 target_link_libraries(${COMPONENT} PUBLIC pango_core pango_opengl )
