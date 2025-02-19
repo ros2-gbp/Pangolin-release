@@ -152,7 +152,9 @@ WindowInterface& CreateWindowAndBind(std::string window_title, int w, int h, con
     }
 
     context->MakeCurrent();
+#ifdef HAVE_GLEW
     glewInit();
+#endif
 
     // And finally process pending window events (such as resize) now that we've setup our callbacks.
     context->window->ProcessEvents();
@@ -233,7 +235,7 @@ void Quit()
 
 void QuitAll()
 {
-    for(auto& nc : contexts) {
+    for(const auto& nc : contexts) {
         nc.second->quit = true;
     }
 }
