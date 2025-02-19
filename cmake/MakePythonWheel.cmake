@@ -10,7 +10,41 @@ function( MakeWheel python_module)
     set(version ${MAKEWHEEL_VERSION})
 
     execute_process(
-        COMMAND ${Python_EXECUTABLE} -c "
+        COMMAND ${Python3_EXECUTABLE} -c "
+import sys
+try:
+    import setuptools
+    sys.exit(0)
+except ImportError as e:
+    print(f'{e}. Search paths:', file=sys.stderr)
+    for p in sys.path: print(f'  {p}', file=sys.stderr)
+    sys.exit(1)
+"
+    RESULT_VARIABLE has_setuptools)
+
+    if(has_setuptools EQUAL "1")
+        message(FATAL_ERROR "Python module `setuptools` required for correct wheel filename generation.")
+    endif()
+
+    execute_process(
+        COMMAND ${Python3_EXECUTABLE} -c "
+import sys
+try:
+    from wheel.bdist_wheel import bdist_wheel
+    sys.exit(0)
+except ImportError as e:
+    print(f'{e}. Search paths:', file=sys.stderr)
+    for p in sys.path: print(f'  {p}', file=sys.stderr)
+    sys.exit(1)
+"
+    RESULT_VARIABLE has_bdist_wheel)
+
+    if(has_bdist_wheel EQUAL "1")
+        message(FATAL_ERROR "Python module `wheel.bdist_wheel` required for correct wheel filename generation.")
+    endif()
+
+    execute_process(
+        COMMAND ${Python3_EXECUTABLE} -c "
 from setuptools.dist import Distribution
 from setuptools import Extension
 
@@ -23,24 +57,20 @@ def wheel_name(**kwargs):
     # assemble wheel file name
     distname = bdist_wheel_cmd.wheel_dist_name
     tag = '-'.join(bdist_wheel_cmd.get_tag())
-    return f'{distname};{tag}'
+    return f'{distname}-{tag}'
 
-print(wheel_name(name='${python_module}', version='${version}', ext_modules=[Extension('dummy', ['summy.c'])]))
+print(wheel_name(name='${python_module}', version='${version}', ext_modules=[Extension('dummy', ['dummy.c'])]))
 "
         OUTPUT_VARIABLE wheel_filename
         OUTPUT_STRIP_TRAILING_WHITESPACE
-        ERROR_QUIET
+        RESULT_VARIABLE has_wheel_filename
     )
-    if(NOT wheel_filename)
-        message(STATUS "Python module `setuptools` required for correct wheel filename generation. Please install if needed.")
-        set(wheel_filename "unknown;unknown")
+
+    if(NOT has_wheel_filename EQUAL "0")
+        message(FATAL_ERROR "Cannot format wheel filename via 'setuptools'.")
     endif()
 
-    list(GET wheel_filename 0 distname)
-    list(GET wheel_filename 1 platformtag)
-    set(complete_tag "${distname}-${platformtag}")
-
-    set(wheel_filename "${CMAKE_BINARY_DIR}/${complete_tag}.whl")
+    set(wheel_filename "${CMAKE_BINARY_DIR}/${wheel_filename}.whl")
     set(wheel_distinfo "${CMAKE_BINARY_DIR}/${python_module}-${version}.dist-info")
     set(wheel_data "${CMAKE_BINARY_DIR}/${python_module}-${version}.data")
     set(wheel_generator_string "pango_wheelgen_${version}")
@@ -85,19 +115,19 @@ print(wheel_name(name='${python_module}', version='${version}', ext_modules=[Ext
     add_custom_target(
         "${python_module}_pip_install"
         DEPENDS "${python_module}_wheel"
-        COMMAND ${Python_EXECUTABLE} -mpip install "${wheel_filename}" --force-reinstall
-        COMMENT "Installing for selected Python '${Python_EXECUTABLE}'"
+        COMMAND ${Python3_EXECUTABLE} -mpip install "${wheel_filename}" --force-reinstall
+        COMMENT "Installing for selected Python '${Python3_EXECUTABLE}'"
     )
 
     add_custom_target(
         "${python_module}_pip_uninstall"
-        COMMAND ${Python_EXECUTABLE} -mpip uninstall -y ${python_module}
+        COMMAND ${Python3_EXECUTABLE} -mpip uninstall -y ${python_module}
     )
 
     ##########################################
     ## Help message since this is tricky for people
     if(MAKEWHEEL_PRINT_HELP)
-        message(STATUS "Selected Python: '${Python_EXECUTABLE}'. cmake --build . -t ${python_module}_pip_install to use ${python_module} module.")
+        message(STATUS "Selected Python: '${Python3_EXECUTABLE}'. cmake --build . -t ${python_module}_pip_install to use ${python_module} module.")
     endif()
 endfunction()
 
