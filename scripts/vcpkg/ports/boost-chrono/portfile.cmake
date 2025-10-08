@@ -4,11 +4,12 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO boostorg/chrono
     REF boost-${VERSION}
-    SHA512 4fbd3b85fa63ee904e1134d35b676941f22e77d2d2d8b2a55527c27ce6187e45fefebe2327129850f374ccd37ec0a66e8323187e1bd616f6c73623e98076c027
+    SHA512 c339a9a5e15d16494db768cd827062bac2beef0fc98c2d9cb821f2984d547dc5c27b06a0774b0115c27201ddde3b83e38c482b98949b53d28588eb76611ecd18
     HEAD_REF master
 )
 
-include(${CURRENT_HOST_INSTALLED_DIR}/share/boost-build/boost-modular-build.cmake)
-boost_modular_build(SOURCE_PATH ${SOURCE_PATH})
-include(${CURRENT_INSTALLED_DIR}/share/boost-vcpkg-helpers/boost-modular-headers.cmake)
-boost_modular_headers(SOURCE_PATH ${SOURCE_PATH})
+set(FEATURE_OPTIONS "")
+boost_configure_and_install(
+    SOURCE_PATH "${SOURCE_PATH}"
+    OPTIONS ${FEATURE_OPTIONS}
+)
