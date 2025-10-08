@@ -2,12 +2,9 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO tukaani-project/xz
     REF "v${VERSION}"
-    SHA512 0aa74e01c019c1d3893cf16f53b300ba4e74c6aa9febabf57ddb49b28615d76862eeb746c54c2085efd37c7e8cc0829014d9b7ad481a76294bc929b3cca91336
+    SHA512 2f51fb316adb2962e0f2ef6ccc8b544cdc45087b9ad26dcd33f2025784be56578ab937c618e5826b2220b49b79b8581dcb8c6d43cd50ded7ad9de9fe61610f46
     HEAD_REF master
     PATCHES
-        fix_config_include.patch
-        win_output_name.patch # Fix output name on Windows. Autotool build does not generate lib prefixed libraries on windows. 
-        add_support_ios.patch # add install bundle info for support ios 
         build-tools.patch
 )
 
@@ -30,10 +27,12 @@ vcpkg_cmake_configure(
         -DCREATE_LZMA_SYMLINKS=OFF
         -DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT=   # using flags from (vcpkg) toolchain
         -DENABLE_NLS=OFF # nls is not supported by this port, yet
+        -DXZ_NLS=OFF
     MAYBE_UNUSED_VARIABLES
         CMAKE_MSVC_DEBUG_INFORMATION_FORMAT
         CREATE_XZ_SYMLINKS
         CREATE_LZMA_SYMLINKS
+        ENABLE_NLS
 )
 vcpkg_cmake_install()
 vcpkg_copy_pdbs()
@@ -48,7 +47,7 @@ if(NOT VCPKG_TARGET_IS_WINDOWS)
 endif()
 set(prefix "${CURRENT_INSTALLED_DIR}")
 configure_file("${SOURCE_PATH}/src/liblzma/liblzma.pc.in" "${CURRENT_PACKAGES_DIR}/lib/pkgconfig/liblzma.pc" @ONLY)
-if (NOT VCPKG_BUILD_TYPE)
+if(NOT VCPKG_BUILD_TYPE)
   set(prefix "${CURRENT_INSTALLED_DIR}/debug")
   configure_file("${SOURCE_PATH}/src/liblzma/liblzma.pc.in" "${CURRENT_PACKAGES_DIR}/debug/lib/pkgconfig/liblzma.pc" @ONLY)
 endif()
