@@ -2,7 +2,7 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO pkgconf/pkgconf
     REF "pkgconf-${VERSION}"
-    SHA512 40abbfdbd64ac95d0e9578acc5f1cb2b692d4c1bfa9f07c4eb1042380bcebff5c063434da2f64bc986c8a7163cde4f7051ba61400461b103616253ab739d4e43
+    SHA512 8c73b8f9c3dd3c72e6b0acf139a68054d631484af4618f46c30c3c13947294986d809bbac0648af9e974739fd42e1730a4e22323884d7cf72f0843a972991a99
     HEAD_REF master
 )
 
@@ -78,5 +78,4 @@ endif()
 
 vcpkg_copy_tools(TOOL_NAMES pkgconf AUTO_CLEAN)
 
-# Handle copyright
 file(INSTALL "${SOURCE_PATH}/COPYING" DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}" RENAME copyright)
