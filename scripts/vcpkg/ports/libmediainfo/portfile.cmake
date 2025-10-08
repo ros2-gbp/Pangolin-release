@@ -3,12 +3,10 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO MediaArea/MediaInfoLib
     REF "v${MEDIAINFO_VERSION}"
-    SHA512 e664153197611647ee5496a0eb2105ac0574522585ecae2c51e35ea018a33a3da230158a4d1159e0abb5935ef953b7f841c6719eecfbba13de3fd9fdf06b8556
+    SHA512 6ad4db0df7425b26a2555f379bbb01dbcdcc8c10bceec4ba97f732b181f2983ee61cc3a49a74c1763e58574e854dc21a031ff4fa1561278ce2c3e9b9e541e9fe
     HEAD_REF master
     PATCHES
-        msvc-arm.diff
         dependencies.diff
-        no-windows-namespace.diff
 )
 
 vcpkg_find_acquire_program(PKGCONFIG)
