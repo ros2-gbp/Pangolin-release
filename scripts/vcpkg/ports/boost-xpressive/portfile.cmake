@@ -4,7 +4,7 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO boostorg/xpressive
     REF boost-${VERSION}
-    SHA512 28e6ebe35e67771dab145a37378052041a1e944b34cb67af089760c60ee61a4df455ae1e72a5c747668ded85dfff1ba6edb42f67b366d00264216a1b51f808e6
+    SHA512 b890dabc987665e90e09144b43ccc8f231773809f32ecdf7b115c5f9d19bca10dc18fc15db2ca5ca2463bec4f689b3e6eb70a8383cf2bbc42066dfdf0b3bef95
     HEAD_REF master
 )
 
