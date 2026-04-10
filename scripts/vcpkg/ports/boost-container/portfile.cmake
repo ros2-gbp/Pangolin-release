@@ -4,7 +4,7 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO boostorg/container
     REF boost-${VERSION}
-    SHA512 447df3942dbf9157c36aec3144f2c80f49a82e18ac4e8e479c85a0b0bcd84deb798c23cf6cab4324f785552af9a1246cab80a77ed7e96c53408bee5aa9c73eba
+    SHA512 35ff7d7435704d3b004970b321ffff1d59db976723de2d6543ab0788a349d9acca894655136835ed6bbd3d5027872a2b5e4faba8202adf1834688bec9ed39a1c
     HEAD_REF master
     PATCHES
         posix-threads.diff
