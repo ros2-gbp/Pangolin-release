@@ -1,10 +1,16 @@
 # Download the xlnt source code
-vcpkg_from_github(
-    OUT_SOURCE_PATH SOURCE_PATH
-    REPO xlnt-community/xlnt
-    REF "v${VERSION}"
-    SHA512 1051c2af1d37f3b0122a89fba2cb43d5779a3b8012cc978a5366e6ab721dc067819a6d301e0ebe214a1b0bac0281c8e1b7f56bfa5f41ec80dbf88d0cbaaaeb05
-    HEAD_REF master
+set(ARCHIVE_NAME "xlnt-${VERSION}.tar.gz")
+set(ARCHIVE_SHA512 2d016416447b56c3902fc86c0441fd1d10cb86c3a542a2a38929e32f8f55470c33e4a3938f9c47b1a672ac4d6784a981c4738a61fd076622a2baa64dbc632810)
+vcpkg_download_distfile(ARCHIVE
+    URLS "https://github.com/xlnt-community/xlnt/archive/v${VERSION}.tar.gz"
+    FILENAME "${ARCHIVE_NAME}"
+    SHA512 ${ARCHIVE_SHA512}
+)
+
+# Extract the source archive
+vcpkg_extract_source_archive(
+    SOURCE_PATH
+    ARCHIVE "${ARCHIVE}"
     PATCHES
         fix-not-found-include.patch
         fix-configure-dependencies.patch
