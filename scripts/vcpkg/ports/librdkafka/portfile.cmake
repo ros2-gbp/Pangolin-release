@@ -2,10 +2,12 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO confluentinc/librdkafka
     REF "v${VERSION}"
-    SHA512 2e4d13d601ea1894edcace2051aa4284ba17306d3f19971734f05d0fcef413b29961b3f701da1b6517e23930bd53034c75ee25c696ac1da7e6b7051cc8ed61eb
+    SHA512 136d305bf8416f229af2d84154e19bbf59bfdb57a02c12ee39fa7078c986154debdcf5cdae2f32b2b2f4b3f081e99a67c9de96b47248e1ce761590a8dfc69530
     HEAD_REF master
     PATCHES
         lz4.patch
+        # remove it when https://github.com/confluentinc/librdkafka/pull/5136 is merged
+        fix_oauthbearer_check.patch
 )
 
 string(COMPARE EQUAL "${VCPKG_LIBRARY_LINKAGE}" "static" RDKAFKA_BUILD_STATIC)
