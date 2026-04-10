@@ -6,15 +6,14 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO tree-sitter/tree-sitter
     REF "v${VERSION}"
-    SHA512 a626dcea5378774511aa1ef669e4dbada3079440b596882172a676c61e53aa6f701b537e3575851af9e10b1e264da25a9f6487b01f43a896cf1a22d58ca7e623
+    SHA512 0060809339744be4b3b24bae8115d2793dc113618ab1a79c347456f5b8341b15d2026e7b62d2e4e3c5226c8bf85a089221133457a80bfdd0413cd82bf7c4a172
     HEAD_REF master
     PATCHES
-        pkgconfig.diff
         unofficial-cmake.diff
 )
 
 vcpkg_cmake_configure(
-    SOURCE_PATH "${SOURCE_PATH}/lib"
+    SOURCE_PATH "${SOURCE_PATH}"
 )
 vcpkg_cmake_install()
 vcpkg_fixup_pkgconfig()
