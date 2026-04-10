@@ -677,8 +677,8 @@ static void pointer_handle_axis(void *data, struct wl_pointer */*wl_pointer*/, u
     float dx = 0, dy = 0;
 
     switch (axis) {
-    case REL_X: dy = v; break;   // up, down
-    case REL_Y: dx = v; break;   // left, right
+    case WL_POINTER_AXIS_VERTICAL_SCROLL: dy = -v; break;   // up, down
+    case WL_POINTER_AXIS_HORIZONTAL_SCROLL: dx = v; break;  // left, right
     }
 
     w->SpecialInputSignal(SpecialInputEvent({
@@ -973,7 +973,6 @@ WaylandWindow::WaylandWindow(const int w, const int h,
     wl_surface_commit(wsurface);
 
     wl_display_roundtrip(display->wdisplay);
-    wl_display_roundtrip(display->wdisplay);
 
     // wait for the first configure event
     while (!configured) {
@@ -1025,17 +1024,17 @@ void WaylandWindow::Move(const int /*x*/, const int /*y*/) { }
 
 void WaylandWindow::Resize(const unsigned int /*w*/, const unsigned int /*h*/) { }
 
-void WaylandWindow::ProcessEvents() { }
+void WaylandWindow::ProcessEvents() {
+    wl_display_dispatch_pending(display->wdisplay);
+}
 
 void WaylandWindow::SwapBuffers() {
-    eglSwapBuffers(display->egl_display, egl_surface);
-
     // draw all decoration elements
     decoration->draw();
 
     MakeCurrent();
 
-    wl_display_dispatch(display->wdisplay);
+    eglSwapBuffers(display->egl_display, egl_surface);
 }
 
 
