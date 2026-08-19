@@ -17,6 +17,9 @@ jobs:
           - docker_image: ubuntu:24.04
             ros_distribution: jazzy
 
+          - docker_image: ubuntu:26.04
+            ros_distribution: lyrical
+
     container:
       image: ${{ matrix.docker_image }}
 
@@ -29,7 +32,7 @@ jobs:
           apt update
           apt install -y --no-install-recommends git ca-certificates
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: ros-tooling/setup-ros@v0.7
 
