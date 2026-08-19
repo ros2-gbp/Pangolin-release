@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, ubuntu-24.04, macos-15, windows-2025]
+        os: [ubuntu-22.04, ubuntu-24.04, macos-26, windows-2025]
         shared_libs: ['ON', 'OFF']
         include:
         - os: ubuntu-22.04
@@ -25,7 +25,7 @@ jobs:
         - os: ubuntu-24.04
           package_manager: "apt"
 
-        - os: macos-15
+        - os: macos-26
           package_manager: "brew"
 
         - os: windows-2025
@@ -33,7 +33,7 @@ jobs:
 
     steps:
     - name: Checkout Pangolin
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         submodules: true
 
@@ -81,7 +81,7 @@ jobs:
       run: |
         vcpkg remove python3
 
-    - uses: actions/setup-python@v6
+    - uses: actions/setup-python@v7
       if: ${{ matrix.package_manager == 'vcpkg' }}
       with:
         python-version: '3.12'
@@ -135,7 +135,7 @@ jobs:
 
     steps:
     - name: Checkout Pangolin
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: install build dependencies
       run: |
@@ -174,7 +174,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: download artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           pattern: pypangolin_wheel_*
           merge-multiple: true
