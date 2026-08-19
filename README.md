@@ -1,3 +1,26 @@
+## pangolin (rolling) - 0.9.6-1
+
+The packages in the `pangolin` repository were released into the `rolling` distro by running `/usr/bin/bloom-release pangolin --rosdistro rolling` on `Wed, 19 Aug 2026 06:25:25 -0000`
+
+The `pangolin` package was released.
+
+Version of package(s) in repository `pangolin`:
+
+- upstream repository: https://github.com/stevenlovegrove/Pangolin.git
+- release repository: https://github.com/ros2-gbp/Pangolin-release.git
+- rosdistro version: `0.9.5-2`
+- old version: `0.9.5-2`
+- new version: `0.9.6-1`
+
+Versions of tools used:
+
+- bloom version: `0.14.3`
+- catkin_pkg version: `1.1.0`
+- rosdep version: `0.26.0`
+- rosdistro version: `1.0.1`
+- vcstools version: `0.1.42`
+
+
 ## pangolin (rolling) - 0.9.5-1
 
 The packages in the `pangolin` repository were released into the `rolling` distro by running `/usr/bin/bloom-release pangolin --rosdistro rolling` on `Fri, 10 Apr 2026 23:41:32 -0000`
